@@ -1,0 +1,9 @@
+{
+  "host": "",
+  "port": "",
+  "user": "root",
+  "pass": "",
+  "socket-path": "/media/LinuxData/data/docker-containers/nginx-proxy-containers/run/mysql-share.local/mysqld/mysqld.sock",
+  "dbname": "jwt_manager",
+  "dsn": ""
+}

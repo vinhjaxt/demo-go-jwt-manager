@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <title>Dashboard</title>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.7/css/bootstrap.min.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css" />
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.13.1/css/bootstrap-select.min.css"
+    rel="stylesheet">
+  <link rel="stylesheet" href="pnotify.custom.min.css">
+  <link rel="stylesheet" href="style.css">
+  <style>
+    [v-cloak] {
+      display: none;
+    }
+  </style>
+</head>
+
+<body>
+
+  <div id="app" v-cloak>
+    <div v-if="loggedin == false && currentTab == 'login'">
+      <div class="container">
+        <div class="card card-container">
+          <img id="profile-img" class="profile-img-card" src="logo.png" />
+          <p id="profile-name" class="profile-name-card">Đăng nhập</p>
+          <form @submit.prevent="login" class="form-signin" autocomplete="off">
+            <span id="reauth-email" class="reauth-email"></span>
+            <input type="text" name="username" class="form-control inputEmail" placeholder="Username" required
+              autofocus>
+            <input type="password" name="password" class="form-control inputPassword" placeholder="Password" required>
+            <button class="btn btn-lg btn-primary btn-block btn-signin" type="submit">Đăng nhập</button>
+            <button @click="currentTab = 'register'" class="btn btn-lg btn-primary btn-block btn-signin"
+              type="button">Đăng ký</button>
+          </form>
+        </div>
+      </div>
+    </div>
+    <div v-if="loggedin == false && currentTab == 'register'">
+      <div class="container">
+        <div class="card card-container">
+          <img id="profile-img" class="profile-img-card" src="logo.png" />
+          <p id="profile-name" class="profile-name-card">Đăng ký</p>
+          <form @submit.prevent="register" class="form-signin">
+            <span id="reauth-email" class="reauth-email"></span>
+            <input type="text" name="username" class="form-control inputEmail" placeholder="Username" required
+              autofocus>
+            <input type="password" name="password" class="form-control inputPassword" placeholder="Password" required>
+            <button class="btn btn-lg btn-primary btn-block btn-signin" type="submit">Đăng ký</button>
+            <button @click="currentTab = 'login'" class="btn btn-lg btn-primary btn-block btn-signin" type="button">Đăng
+              nhập</button>
+          </form>
+        </div>
+      </div>
+    </div>
+    <div v-if="loggedin">
+      <div class="container-fluid main-container">
+        <div class="container">
+          <div class="row">
+            <div class="col-md-12">
+              <div class="card">
+                <ul class="nav nav-tabs" role="tablist">
+                  <li v-for="tab in tabs" :class="{active: currentTab == tab.component}"
+                    @click="currentTab = tab.component"><a href="#">{{tab.name}}</a></li>
+                </ul>
+
+                <div class="tab-content">
+                  <div role="tabpanel" class="tab-panel">
+                    <div class="row">
+                      <h2>Chào {{user.username}} <button @click="logout" class="btn btn-danger">Đăng xuất</button></h2>
+                      <!-- panel -->
+                      <div class="col-md-12" v-show="currentTab == 'sessions'">
+                        <div class="row">
+                          <div class="col-md-12">
+                            <h3 class="page-header">Các phiên đang hoạt động <button @click="clearTokens" class="btn btn-danger">Đăng xuất
+                                tất cả các thiết bị</button></h3>
+
+                            <div class="table-responsive">
+                              <table class="table">
+                                <thead>
+                                  <tr>
+                                    <th>ID</th>
+                                    <th>Khởi tạo bởi</th>
+                                    <th>Đang hoạt động</th>
+                                    <th>Hoạt động gần nhất</th>
+                                    <th>Hết hạn vào lúc</th>
+                                    <th>Hành động</th>
+                                  </tr>
+                                </thead>
+                                <tbody>
+                                  <tr v-for="(t, i) in sessions" :key="'sessions-'+t.id"
+                                    :style="[t.id==current_token_id?{'background-color': 'azure'}:{}]">
+                                    <td>{{t.id}}</td>
+                                    <td>
+                                      {{t.info}}
+                                    </td>
+                                    <td>
+                                      {{t.info_ss}}
+                                    </td>
+                                    <td>
+                                      {{t.last_access_at&&(new Date(t.last_access_at*1000)).toLocaleString()}}
+                                    </td>
+                                    <td>
+                                      {{t.last_access_at&&(new Date(t.expire*1000)).toLocaleString()}}
+                                    </td>
+                                    <td>
+                                      <button type="button" class="btn btn-danger btn-xs"
+                                        @click="delToken(t.id, i)">Đăng xuất</button>
+                                    </td>
+                                  </tr>
+                                </tbody>
+                              </table>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                      <!-- end panel-->
+
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.7/js/bootstrap.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jsencrypt/2.3.1/jsencrypt.min.js"></script>
+  <script src="./pnotify.custom.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/vue"></script>
+  <script src="https://cdn.jsdelivr.net/npm/socket.io-client@2.1.1/dist/socket.io.js"></script>
+  <script>
+    (function () {
+      var js = document.createElement('script')
+      js.src = './app.js?' + Math.random()
+      document.body.appendChild(js)
+    })()
+  </script>
+</body>
+
+</html>
