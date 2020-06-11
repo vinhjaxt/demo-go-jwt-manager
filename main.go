@@ -25,7 +25,7 @@ func main() {
 		ReadTimeout:                   5 * time.Second,
 		WriteTimeout:                  time.Second,
 		IdleTimeout:                   time.Minute, // This can be long for keep-alive connections.
-		DisableHeaderNamesNormalizing: true,        // If you're not going to look at headers or know the casing you can set this.
+		DisableHeaderNamesNormalizing: false,       // If you're not going to look at headers or know the casing you can set this.
 		// NoDefaultContentType:          true,        // Don't send Content-Type: text/plain if no Content-Type is set manually.
 		MaxRequestBodySize: 2 * 1024 * 1024, // 2MB
 		DisableKeepalive:   false,
